@@ -104,7 +104,6 @@ def analyze_crypto_changes(symbols, timeframe_hours):
         except Exception as e:
             print(f"Ошибка при обработке {symbol}: {e}")
 
-
 if __name__ == "__main__":
     #    analyze_crypto_changes(symbols, timeframe_hours)
     for i in range(100):
