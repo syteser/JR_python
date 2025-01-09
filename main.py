@@ -77,6 +77,7 @@ def fetch_large_transactions(threshold=1):
     except requests.RequestException as e:
         print(f"Ошибка при выполнении запроса: {e}")
 
+
 if __name__ == "__main__":
     main()
     fetch_large_transactions(1)
