@@ -1,5 +1,4 @@
 import datetime
-
 import ccxt
 import requests
 
@@ -108,4 +107,6 @@ def analyze_crypto_changes(symbols, timeframe_hours):
 
 if __name__ == "__main__":
     #    analyze_crypto_changes(symbols, timeframe_hours)
+    for i in range(100):
+        print(f'{i} ',end ='')
     analyze_blockchain_movements(timeframe_hours, threshold_btc)
