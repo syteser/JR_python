@@ -37,9 +37,7 @@ def fetch_recent_transactions(timeframe_hours):
     timeframe_start_ts = int(timeframe_start.timestamp())
 
     # Фильтруем транзакции по времени
-    recent_transactions = [
-        tx for tx in transactions if tx.get("time", 0) >= timeframe_start_ts
-    ]
+    recent_transactions = [tx for tx in transactions if tx.get("time", 0) >= timeframe_start_ts]
 
     return recent_transactions
 
