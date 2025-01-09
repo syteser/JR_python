@@ -5,7 +5,7 @@ import requests
 
 programm_version = '0.0.0.2'
 programm_author = '@syteser'
-programm_name = ''
+programm_name = 'SecBTCadress....'
 
 # Список основных монет
 symbols = ["BTC/USDT", "ETH/USDT", "BNB/USDT", "XRP/USDT", "ADA/USDT"]
