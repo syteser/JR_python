@@ -16,37 +16,55 @@ print(f'Версія програми - {programm_version}')
 print(f'author: {programm_author} 2025')
 print(f'************************************************')
 
-def fetch_large_transactions(threshold=1):
-    #Ищет транзакции, где было перемещено более threshold биткоинов за последние 24 часа.
-    print("Поиск крупных транзакций...")
-    base_url = "https://api.blockchair.com/bitcoin/transactions"
+import requests
+import datetime
 
+def fetch_recent_transactions(timeframe_hours):
+    """
+    Получает данные о последних транзакциях в блокчейне за заданный промежуток времени.
+    :param timeframe_hours: Временной промежуток в часах
+    :return: Список транзакций
+    """
+    base_url = "https://blockchain.info/unconfirmed-transactions?format=json"
+    response = requests.get(base_url)
+    response.raise_for_status()
+
+    data = response.json()
+    transactions = data.get("txs", [])
+
+    now = datetime.datetime.now(datetime.UTC)
+    timeframe_start = now - datetime.timedelta(hours=timeframe_hours)
+    timeframe_start_ts = int(timeframe_start.timestamp())
+
+    # Фильтруем транзакции по времени
+    recent_transactions = [
+        tx for tx in transactions if tx.get("time", 0) >= timeframe_start_ts
+    ]
+
+    return recent_transactions
+
+def analyze_blockchain_movements(timeframe_hours, threshold_btc):
+    """
+    Анализирует изменения в блокчейне и ищет транзакции, превышающие указанный порог.
+
+    :param timeframe_hours: Временной промежуток в часах
+    :param threshold_btc: Пороговое значение в BTC
+    """
     try:
-        # Формируем корректный запрос
-        params = {
-            "limit": 100,  # Получить последние 100 транзакций
-            "q": f"value(>{threshold * 1e8})",  # Указываем пороговое значение в сатоши
-            "offset": 0,  # Начало выборки
-        }
-
-        response = requests.get(base_url, params=params)
-        response.raise_for_status()
-        data = response.json()
-
-        transactions = data.get("data", [])
-
-        if not transactions:
-            print("Крупных транзакций за последние 24 часа не найдено.")
-            return
+        transactions = fetch_recent_transactions(timeframe_hours)
 
         for tx in transactions:
-            tx_hash = tx.get("transaction_hash", "Неизвестный")
-            print(f"Найдена транзакция: {tx_hash}")
-            print(f"Сумма: {threshold} BTC")
-            print("--------------------------")
+            total_input = sum(inp.get("prev_out", {}).get("value", 0) for inp in tx.get("inputs", [])) / 1e8  # Сатоши в BTC
+            total_output = sum(out.get("value", 0) for out in tx.get("out", [])) / 1e8
 
-    except requests.RequestException as e:
-        print(f"Ошибка при выполнении запроса: {e}")
+            if total_input >= threshold_btc:
+                print(f"Транзакция {tx.get('hash')} потратила {total_input:.8f} BTC.")
+
+            if total_output >= threshold_btc:
+                print(f"Транзакция {tx.get('hash')} получила {total_output:.8f} BTC.")
+
+    except Exception as e:
+        print(f"Ошибка при анализе блокчейна: {e}")
 
 def analyze_crypto_changes(symbols, timeframe_hours):
     """
@@ -87,6 +105,9 @@ def analyze_crypto_changes(symbols, timeframe_hours):
             print(f"Ошибка при обработке {symbol}: {e}")
 
 if __name__ == "__main__":
-#    рух Х монет протягом У годин
+#    рух Х монет протягом timeframe_hours годин
     analyze_crypto_changes(symbols, timeframe_hours)
 
+    timeframe_hours = 24  # Количество часов
+    threshold_btc = 1  # Порог в биткоинах
+    analyze_blockchain_movements(timeframe_hours, threshold_btc)
