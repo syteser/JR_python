@@ -1,5 +1,4 @@
 import datetime
-
 import ccxt
 import requests
 
